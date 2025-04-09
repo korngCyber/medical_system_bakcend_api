@@ -1,10 +1,13 @@
 require("dotenv").config();
 const express = require("express");
 const productRoutes = require('./routes/productRoute');
+const CategoryRoutes = require('./routes/categoryRoute');
+const CustomerRoutes = require('./routes/customerRoute');
+const OrderRoutes = require('./routes/orderRoute');
 const { connectDB } = require("./configs/connectionDB");
 const errorHandler = require("./middlewares/errorHandler");
 
-const { sequelize } = require("./models/indexModel");
+// const { sequelize } = require("./models/indexModel");
 
 
 const app = express();
@@ -19,6 +22,10 @@ connectDB().then(async () => {
     // console.log("✅ All tables created successfully!");
 
     app.use("/api/v1/product", productRoutes);
+    app.use("/api/v1/category", CategoryRoutes);
+    app.use("/api/v1/customer", CustomerRoutes); 
+    app.use("/api/v1/order", OrderRoutes);
+
 
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
