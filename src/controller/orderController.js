@@ -3,11 +3,11 @@ const Order = require("../models/orderModel");
 
 
 class orderController{
-    
+
     async createOrder(req, res) {
         try {
             const order = await orderService.createOrder(req.body);
-            return res.status(201).json(order);
+            return res.status(200).json(order);
         } catch (error) {
             return res.status(500).json({ message: error.message });
         }

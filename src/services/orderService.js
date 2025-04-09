@@ -2,11 +2,48 @@ const { Op } = require("sequelize");
 const sequelize = require("../configs/connectionDB");
 const Order = require("../models/orderModel");
 const OrderDetails = require("../models/orderDetail");
+const Product = require("../models/productModel");
 
 class OrderService {
     async createOrder(data) {
         return await sequelize.sequelize.transaction(async (t) => {
-            return Order.create(data, { transaction: t });
+            const { products, ...orderData } = data;
+
+            // Validate product stock
+            for (const product of products) {
+                const productRecord = await Product.findByPk(product.proId, { transaction: t });
+                if (!productRecord) {
+                    throw new Error(`Product with ID ${product.proId} not found`);
+                }
+                if (productRecord.proStock < product.quantity) {
+                    throw new Error(`Insufficient stock for product: ${productRecord.proName}`);
+                }
+            }
+
+            // Create the order
+            const order = await Order.create(orderData, { transaction: t });
+
+            // Create order details and deduct stock
+            for (const product of products) {
+                await OrderDetails.create(
+                    {
+                        orderId: order.orderId,
+                        proId: product.proId,
+                        quantity: product.quantity,
+                        price: product.price,
+                    },
+                    { transaction: t }
+                );
+
+                // Deduct stock
+                const productRecord = await Product.findByPk(product.proId, { transaction: t });
+                await productRecord.update(
+                    { proStock: productRecord.proStock - product.quantity },
+                    { transaction: t }
+                );
+            }
+
+            return order;
         });
     }
     async getAllOrders(query = {}) {
