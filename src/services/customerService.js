@@ -43,7 +43,7 @@ class CustomerService {
         };
     }
     async getCustomerById(id) {
-        return await Customer.findOne({ where: { customerId: id } });
+        return await Customer.findOne({ where: { cusId: id } }); // Use 'cusId' instead of 'customerId'
     }
     async updateCustomer(id, data) {
         return await sequelize.sequelize.transaction(async (t) => {

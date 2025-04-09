@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const Customer = require("../controller/customerController");
+const CustomerController = require("../controller/customerController");
+const upload = require("../middlewares/uploadMiddleware");
 
-router.post("", Customer.create);
-router.get("", Customer.getAll);
-router.get("/:id", Customer.getOne);
-router.put("/:id", Customer.update);
-router.delete("/:id", Customer.remove);
+router.post("", upload.single("cusImage"), CustomerController.create);
+router.put("/:id", upload.single("cusImage"), CustomerController.update);
+router.get("", CustomerController.getAll);
+router.get("/:id", CustomerController.getCustomerById);
+router.delete("/:id", CustomerController.remove);
 
 module.exports = router;

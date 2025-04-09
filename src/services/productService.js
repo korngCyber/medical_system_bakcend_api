@@ -1,36 +1,28 @@
-const { Op } = require("sequelize");
 const sequelize = require("../configs/connectionDB");
 const Product = require("../models/productModel");
+const { Op } = require("sequelize");
+
 
 class ProductService {
   async createProduct(data) {
     return await sequelize.sequelize.transaction(async (t) => {
-      return Product.create(data, {transaction: t});
+      return Product.create(data, { transaction: t });
     });
   }
 
   async getAllProducts(query = {}) {
     const {
       search,
-      status,
-      catId,
       sortBy = "created_at",
       sortOrder = "DESC",
       limit = 10,
       page = 1,
     } = query;
-
     const offset = (page - 1) * limit;
 
     const where = {};
     if (search) {
       where.proName = { [Op.like]: `%${search}%` };
-    }
-    if (status) {
-      where.proStatus = status;
-    }
-    if (catId) {
-      where.catId = catId;
     }
 
     const result = await Product.findAndCountAll({
@@ -67,8 +59,8 @@ class ProductService {
       const product = await Product.findByPk(id);
       if (!product) return null;
 
-      await product.destroy({ transaction: t }); // Soft delete
-      return true;
+      await product.destroy({ transaction: t });
+      return product;
     });
   }
 }

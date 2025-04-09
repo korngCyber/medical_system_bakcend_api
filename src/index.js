@@ -1,35 +1,63 @@
 require("dotenv").config();
 const express = require("express");
-const productRoutes = require('./routes/productRoute');
-const CategoryRoutes = require('./routes/categoryRoute');
-const CustomerRoutes = require('./routes/customerRoute');
-const OrderRoutes = require('./routes/orderRoute');
+const productRoutes = require("./routes/productRoute");
+const categoryRoutes = require("./routes/categoryRoute");
+const customerRoutes = require("./routes/customerRoute");
+const orderRoutes = require("./routes/orderRoute");
 const { connectDB } = require("./configs/connectionDB");
+const { sequelize } = require("./models/indexModel"); // Import sequelize instance
 const errorHandler = require("./middlewares/errorHandler");
-
-// const { sequelize } = require("./models/indexModel");
-
-
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./swagger");
+const path = require("path");
 const app = express();
 
 app.use(express.json());
-
 app.use(errorHandler);
 
-connectDB().then(async () => {
-    // await sequelize.sync({ force: true }); // Fixed line
-    // console.log(sequelize); // or console.log(db)
-    // console.log("✅ All tables created successfully!");
+connectDB()
+  .then(async () => {
+    try {
+      // Sync database schema
+      await sequelize.sync({ alter: true }); // Use `alter: true` to update schema without dropping tables
+      console.log("✅ All tables created successfully!");
 
-    app.use("/api/v1/product", productRoutes);
-    app.use("/api/v1/category", CategoryRoutes);
-    app.use("/api/v1/customer", CustomerRoutes); 
-    app.use("/api/v1/order", OrderRoutes);
+      // Register routes
+      app.use("/api/v1/product", productRoutes);
+      app.use("/api/v1/category", categoryRoutes);
+      app.use("/api/v1/customer", customerRoutes);
+      app.use("/api/v1/order", orderRoutes);
+      app.use("/upload", express.static(path.join(__dirname, "upload")));
+      // app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
-}).catch(err => {
+      const PORT = process.env.PORT || 5000;
+      app.listen(PORT, () =>
+        console.log(`🚀 Server running on http://localhost:${PORT}`)
+      );
+    } catch (error) {
+      console.error("❌ Failed to sync database schema:", error);
+      process.exit(1);
+    }
+  })
+  .catch((err) => {
     console.error("❌ Failed to connect to the database", err);
     process.exit(1);
+  });
+// Handle uncaught exceptions
+process.on("uncaughtException", (error) => {
+  console.error("❌ Uncaught Exception:", error);
+  process.exit(1);
+});
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (error) => {
+  console.error("❌ Unhandled Rejection:", error);
+  process.exit(1);
+});
+// Handle SIGINT signal (Ctrl+C)
+process.on("SIGINT", () => {
+  console.log("🔌 Server shutting down...");
+  sequelize.close().then(() => {
+    console.log("✅ Database connection closed.");
+    process.exit(0);
+  });
 });

@@ -23,7 +23,7 @@ class CategoryController{
             next(error);
         }
     }
-    async getOne(req, res, next) {
+    async getByID(req, res, next) {
         try {
             const category = await CategoryService.getCategoryById(req.params.id);
             if (!category) return res.status(404).json({ message: "Category not found" });

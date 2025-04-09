@@ -1,68 +1,66 @@
-const productService = require("../services/productService");
+const ProductService = require("../services/productService");
 
 class ProductController {
-  async create(req, res, next) {
+  static async create(req, res) {
     try {
-      const product = await productService.createProduct(req.body);
-      res.status(200).json({
-        message: "Product created successfully",
-        data: product,
-      });
+      const product = await ProductService.createProduct(req.body);
+      res
+        .status(201)
+        .json({ message: "Product created successfully", product });
     } catch (error) {
-      next(error);
+      res.status(500).json({ error: error.message });
     }
   }
 
-  async getAll(req, res, next) {
+  static async getAllProducts(req, res) {
     try {
-      const result = await productService.getAllProducts(req.query);
-      res.status(200).json({
-        message: "Products retrieved successfully",
-        ...result,
-      });
+      const products = await ProductService.getAllProducts(req.query);
+      res.status(200).json(products);
     } catch (error) {
-      next(error);
+      res.status(500).json({ error: error.message });
     }
   }
 
-  async getOne(req, res, next) {
+  static async getProductById(req, res) {
     try {
-      const product = await productService.getProductById(req.params.id);
-      if (!product) return res.status(404).json({ message: "Product not found" });
-
-      res.status(200).json({
-        message: "Product retrieved successfully",
-        data: product,
-      });
+      const product = await ProductService.getProductById(req.params.id);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res.status(200).json(product);
     } catch (error) {
-      next(error);
+      res.status(500).json({ error: error.message });
     }
   }
 
-  async update(req, res, next) {
+  static async updateProduct(req, res) {
     try {
-      const updated = await productService.updateProduct(req.params.id, req.body);
-      if (!updated) return res.status(404).json({ message: "Product not found" });
-
-      res.status(200).json({
-        message: "Product updated successfully",
-        data: updated,
-      });
+      const product = await ProductService.updateProduct(
+        req.params.id,
+        req.body
+      );
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res
+        .status(200)
+        .json({ message: "Product updated successfully", product });
     } catch (error) {
-      next(error);
+      res.status(500).json({ error: error.message });
     }
   }
 
-  async remove(req, res, next) {
+  static async deleteProduct(req, res) {
     try {
-      const deleted = await productService.deleteProduct(req.params.id);
-      if (!deleted) return res.status(404).json({ message: "Product not found" });
-
+      const product = await ProductService.deleteProduct(req.params.id);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
       res.status(200).json({ message: "Product deleted successfully" });
     } catch (error) {
-      next(error);
+      res.status(500).json({ error: error.message });
     }
   }
 }
 
-module.exports = new ProductController();
+module.exports = ProductController;
