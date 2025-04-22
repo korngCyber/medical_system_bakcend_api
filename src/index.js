@@ -1,37 +1,50 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const productRoutes = require("./routes/productRoute");
 const categoryRoutes = require("./routes/categoryRoute");
 const customerRoutes = require("./routes/customerRoute");
 const orderRoutes = require("./routes/orderRoute");
 const { connectDB } = require("./configs/connectionDB");
-const { sequelize } = require("./models/indexModel"); // Import sequelize instance
+const { sequelize } = require("./models/indexModel");
 const errorHandler = require("./middlewares/errorHandler");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./swagger");
 const path = require("path");
+
 const app = express();
 const cors = require("cors");
 
 
-app.use(cors());
+// Use CORS (Adjust origins based on your frontend ports)
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || "http://localhost:3000", // Ensure CORS is set dynamically from environment
+  credentials: true,
+}));
+
+
 app.use(express.json());
+
+// Middleware
 app.use(errorHandler);
 
+// DB Connection and Server
 connectDB()
   .then(async () => {
     try {
-      // Sync database schema
-      await sequelize.sync({ alter: true }); // Use `alter: true` to update schema without dropping tables
+      // Sync database schema (altering the schema if necessary)
+      await sequelize.sync({ alter: true });
       console.log("✅ All tables created successfully!");
 
-      // Register routes
+      // Routes
       app.use("/api/v1/product", productRoutes);
       app.use("/api/v1/category", categoryRoutes);
       app.use("/api/v1/customer", customerRoutes);
       app.use("/api/v1/order", orderRoutes);
       app.use("/upload", express.static(path.join(__dirname, "upload")));
-      // app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+      
+      // Enable Swagger UI if needed
+      app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
       const PORT = process.env.PORT || 5000;
       app.listen(PORT, () =>
@@ -46,17 +59,18 @@ connectDB()
     console.error("❌ Failed to connect to the database", err);
     process.exit(1);
   });
-// Handle uncaught exceptions
+
+// Global Error Handlers
 process.on("uncaughtException", (error) => {
   console.error("❌ Uncaught Exception:", error);
   process.exit(1);
 });
-// Handle unhandled promise rejections
+
 process.on("unhandledRejection", (error) => {
   console.error("❌ Unhandled Rejection:", error);
   process.exit(1);
 });
-// Handle SIGINT signal (Ctrl+C)
+
 process.on("SIGINT", () => {
   console.log("🔌 Server shutting down...");
   sequelize.close().then(() => {
