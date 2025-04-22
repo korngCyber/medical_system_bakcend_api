@@ -13,12 +13,15 @@ const swaggerSpec = require("./swagger");
 const path = require("path");
 
 const app = express();
+const cors = require("cors");
+
 
 // Use CORS (Adjust origins based on your frontend ports)
 app.use(cors({
   origin: process.env.CORS_ORIGIN || "http://localhost:3000", // Ensure CORS is set dynamically from environment
   credentials: true,
 }));
+
 
 app.use(express.json());
 
