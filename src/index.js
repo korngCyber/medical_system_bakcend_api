@@ -13,7 +13,6 @@ const swaggerSpec = require("./swagger");
 const path = require("path");
 
 const app = express();
-const cors = require("cors");
 
 
 // Use CORS (Adjust origins based on your frontend ports)
