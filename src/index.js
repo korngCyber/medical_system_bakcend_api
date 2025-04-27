@@ -5,6 +5,7 @@ const productRoutes = require("./routes/productRoute");
 const categoryRoutes = require("./routes/categoryRoute");
 const customerRoutes = require("./routes/customerRoute");
 const orderRoutes = require("./routes/orderRoute");
+const authRoute=require("./routes/authRoute");
 const { connectDB } = require("./configs/connectionDB");
 const { sequelize } = require("./models/indexModel");
 const errorHandler = require("./middlewares/errorHandler");
@@ -21,6 +22,26 @@ app.use(cors({
   credentials: true,
 }));
 
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  process.env.CORS_ORIGIN_1,
+  process.env.CORS_ORIGIN_2,
+].filter(Boolean); // Remove any undefined or empty ones
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
 
 app.use(express.json());
 
@@ -40,6 +61,7 @@ connectDB()
       app.use("/api/v1/category", categoryRoutes);
       app.use("/api/v1/customer", customerRoutes);
       app.use("/api/v1/order", orderRoutes);
+      app.use("/api/v1/auth",authRoute);
       app.use("/upload", express.static(path.join(__dirname, "upload")));
       
       // Enable Swagger UI if needed
