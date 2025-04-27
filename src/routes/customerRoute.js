@@ -8,5 +8,6 @@ router.put("/:id", upload.single("cusImage"), CustomerController.update);
 router.get("", CustomerController.getAll);
 router.get("/:id", CustomerController.getCustomerById);
 router.delete("/:id", CustomerController.remove);
-
+router.get('/staff/all', CustomerController.getAllStaff);
+router.get('/customer/all', CustomerController.getAllCustomers);
 module.exports = router;

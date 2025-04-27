@@ -66,6 +66,23 @@ class CustomerController{
             return res.status(500).json({ message: error.message });
         }
     }
+    async getAllStaff(req, res) {
+        try {
+            const staffMembers = await CustomerService.getAllCustomersByRole(req.query, 'staff');
+            return res.status(200).json(staffMembers);
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+    async getAllCustomers(req, res) {
+        try {
+            const customers = await CustomerService.getAllCustomersByRole(req.query, 'customer');
+            return res.status(200).json(customers);
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
     async getOne(req, res) {
         try {
             const customer = await CustomerService.getCustomerById(req.params.id);
