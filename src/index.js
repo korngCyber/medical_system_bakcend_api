@@ -67,7 +67,7 @@ connectDB()
     console.error("❌ Failed to connect to the database", err);
     process.exit(1);
   });
-// Handle uncaught exceptions
+// Handle uncaught exceptions// Handle uncaught exceptions
 process.on("uncaughtException", (error) => {
   console.error("❌ Uncaught Exception:", error);
   process.exit(1);
