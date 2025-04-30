@@ -15,14 +15,6 @@ const path = require("path");
 
 const app = express();
 
-
-// Use CORS (Adjust origins based on your frontend ports)
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || "http://localhost:3000", // Ensure CORS is set dynamically from environment
-  credentials: true,
-}));
-
-
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
@@ -80,7 +72,7 @@ connectDB()
     console.error("❌ Failed to connect to the database", err);
     process.exit(1);
   });
-
+// Handle uncaught exceptions
 // Global Error Handlers
 process.on("uncaughtException", (error) => {
   console.error("❌ Uncaught Exception:", error);
